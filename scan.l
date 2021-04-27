@@ -5,7 +5,9 @@
 #include <string.h>
 %}
 
+CHARACTER ["][a-zA-Z0-9_]["]
 IDENTIFIER 	[a-zA-Z_][a-zA-Z0-9_]*
+
 
 DIGIT		[0-9]
 NONZERODIGIT	[1-9]
@@ -33,11 +35,13 @@ WHITESPACE	[ \t\v\n\f]
 ^[\t]*\n       		{/* Ignore blank lines. */ ;}
 [%].*			    { /*Ignore comments*/}
 
+
 "PROGRAM"           {return PROGRAM;}
+"PRINT"             {return PRINT;}
+"FLOAT"             {return FLOAT;}
 "IF" 			    {return IF;}
 "THEN"              {return THEN;}
 "ENDIF"             {return ENDIF;}
-"FOR"   		    {return FOR;}
 "FUNCTION"			{return FUNCTION;}
 "ELSEIF"			{return ELSEIF;}
 "ELSE"			    {return ELSE;}
@@ -58,9 +62,14 @@ WHITESPACE	[ \t\v\n\f]
 "SWITCH"            {return SWITCH;}
 "CASE"              {return CASE;}
 "DEFAULT"           {return DEFAUT;}
-"PRINT"             {return PRINT;}
 "BREAK"             {BREAK;}
 
+
+
+""
+
+"\'"			{return APOSTROPHE;}
+"\""			{return QUOTATION;}
 ";"			        {return COL;}
 ","			        {return COMMA;}
 ":"			        {return COLON;}
@@ -73,20 +82,20 @@ WHITESPACE	[ \t\v\n\f]
 "}"			        {return RBRA;}
 "-"			        {return MINUS;}
 "+"			        {return PLUS;}
-"%"			        {return PERCENT;}
 "<"			        {return LESS_THAN_OP;}
 ">"			        {return GREATER_THAN_OP;}
 "|"			        {return OR_SIGN;}
 "*"			        {return STAR;}
 "/"			        {return SLASH;}
-"<"			        {return LESS_THAN_OP;}
-">"			        {return GREATER_THAN_OP;}
 "<="			    {return LE_OP; }
 ">="			    {return GE_OP; }
 "=="			    {return EQ_OP; }
 "!="			    {return NE_OP; }
 
-
+{CHARACTER}         {return CHARACTER;}
 {NEWLINE}           {return NEWLINE;}
 {IDENTIFIER}        {return IDENTIFIER;}
+{DECINTEGER}        {return DECINTEGER;}
+{POINTFLOAT}        {return POINTFLOAT;}
+{SHORTSTRING}       {return SHORTSTRING;}
 %%

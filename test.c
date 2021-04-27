@@ -1,2 +1,1 @@
-PROGRAM hi
-
+PRINT("AAAAA"[1])
