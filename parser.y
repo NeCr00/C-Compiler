@@ -15,24 +15,111 @@
 %}
 
 %token PROGRAM IDENTIFIER IF FOR FUNCTION ELSEIF ELSE NEWLINE THEN ENDIF  CHAR INTEGER VARS ENDFUNCTION
-%token RETURN STARTMAIN ENDMAIN WHILE ENDWHILE  TO ENDFOR AND OR SWITCH CASE DEFAUT PRINT BREAK COL
+%token RETURN STARTMAIN ENDMAIN WHILE ENDWHILE  TO ENDFOR AND OR SWITCH CASE DEFAULT PRINT BREAK COL
 %token COMMA COLON EQUAL LPAR RPAR LSBRA RSBRA LBRA RBRA MINUS PLUS PERCENT  LESS_THAN_OP GREATER_THAN_OP
 %token  OR_SIGN  STAR SLASH   LE_OP GE_OP EQ_OP NE_OP APOSTROPHE QUOTATION CHARACTER
-%token DECINTEGER POINTFLOAT FLOAT INTPART  SHORTSTRING
+%token DECINTEGER POINTFLOAT FLOAT INTPART  SHORTSTRING STEP ENDSWITCH STRUCT ENDSTRUCT TYPEDEF
+
+%left  PLUS MINUS
+%left  STAR SLASH 
+
 %%
 
-program:
-             statement NEWLINE
+program:    
+           struct_stmt main_section
             {printf("Success! You are awesome. \n");};
 
+
+main_section:
+      STARTMAIN VARS declare_variables statement_list ENDMAIN;
+
+statement_list:
+      statement_list statement
+      |statement;
+
 statement:
-      assigment_stmt
+      empty_assigment_stmt
       |print_stmt
-      |break_stmt;
+      |break_stmt
+      |while_stmt
+      |for_stmt
+      |if_stmt
+      |switch_case_stmt
+      |return_stmt
+      |create_struct;
+
+create_struct:
+      STRUCT identifier identifier
+      | identifier identifier;
+
+struct_stmt:
+
+      |struct
+      |typedef_struct;
+
+struct: 
+      STRUCT identifier VARS assigment_stmt ENDSTRUCT;
+
+typedef_struct: 
+      TYPEDEF STRUCT identifier VARS assigment_stmt ENDSTRUCT;
+
+
+return_stmt:
+      RETURN
+      |RETURN target_return;
+
+target_return:
+      literal
+      |identifier;
 
 break_stmt:
 	BREAK;
 
+switch_case_stmt:
+      switch case_list default ENDSWITCH
+      |switch case_list  ENDSWITCH;
+
+switch:
+      SWITCH LPAR expression RPAR;
+
+case_list:
+      case_list case
+      |case;
+
+case:
+      CASE LPAR expression RPAR COLON statement_list;
+
+default:
+      DEFAULT statement_list;
+
+if_stmt:
+      if ENDIF
+      |if else ENDIF
+      |if elseif_list ENDIF
+      |if elseif_list else ENDIF;
+
+if:
+      IF LPAR expression RPAR THEN statement_list;
+
+elseif_list:
+      elseif_list elseif
+      |elseif;
+
+elseif: 
+      ELSEIF LPAR expression RPAR statement_list;
+
+else:
+      ELSE statement_list;
+
+while_stmt:
+      WHILE LPAR expression RPAR statement_list ENDWHILE;
+     
+for_stmt:
+      FOR identifier COLON EQUAL target_for TO target_for STEP target_for statement_list ENDFOR  ;
+
+target_for:
+      integer
+      |floatnum;
 //=================================Print===================================================
 print_stmt:
       PRINT LPAR string RPAR
@@ -43,30 +130,40 @@ print_input:
       |integer
       |floatnum
       |character;
+
 //=====================================Expressions=========================================
 expression_list:
 	    expression_list COMMA expression
 	    |LPAR expression_list  RPAR
-  
-	    | expression;
+          | expression;
 
 
 expression:
       atom
       |expression PLUS expression
       |expression MINUS expression
-      | expression STAR expression
+      |expression STAR expression
       |expression SLASH expression;
-
+      |expression comparison_op expression
+      |expression logical_op expression;
 
 
 atom:
       literal
-      |identifier;
-
+      |identifier
+      |string;
 //===========================================================================================
 
 //========================= Assigment====================================================== 
+
+declare_variables:
+ // empty declare
+ |assigment_stmt
+ |declare_variables assigment_stmt;     
+
+empty_assigment_stmt:
+      target EQUAL expression_list;
+
 assigment_stmt:
      type taget_list;
 
@@ -78,7 +175,8 @@ type:
 taget_list:
       target
       |taget_list EQUAL expression_list
-      |taget_list COMMA EQUAL expression_list;
+      |taget_list COMMA EQUAL expression_list
+      |taget_list COMMA target;
 
 target:
        IDENTIFIER;
@@ -86,17 +184,17 @@ target:
 
 
 
-// comparison_op: 
-//         EQ_OP
-//         |NE_OP
-//         |GREATER_THAN_OP
-//         |LESS_THAN_OP
-//         |LE_OP
-//         |GE_OP;
+comparison_op: 
+        EQ_OP
+        |NE_OP
+        |GREATER_THAN_OP
+        |LESS_THAN_OP
+        |LE_OP
+        |GE_OP;
 
-// logical_op:
-//         AND
-//         |OR;
+logical_op:
+        AND
+        |OR;
 
 string:
       SHORTSTRING;
@@ -140,6 +238,6 @@ int main(int argc, char** argv) {
  
 }
 void yyerror(const char* s) {
-	fprintf(stderr, "Line: 1 --> Parser error\n" );
+	fprintf(stderr, "Line: %d --> Parser error\n", yylineno);
 	exit(1);
 }

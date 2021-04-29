@@ -1,1 +1,7 @@
-PRINT("AAAAA"[1])
+STARTMAIN
+VARS
+x=1f
+y=2
+k=2
+
+ENDMAIN

@@ -70,7 +70,7 @@ extern int yydebug;
     OR = 280,
     SWITCH = 281,
     CASE = 282,
-    DEFAUT = 283,
+    DEFAULT = 283,
     PRINT = 284,
     BREAK = 285,
     COL = 286,
@@ -102,7 +102,12 @@ extern int yydebug;
     POINTFLOAT = 312,
     FLOAT = 313,
     INTPART = 314,
-    SHORTSTRING = 315
+    SHORTSTRING = 315,
+    STEP = 316,
+    ENDSWITCH = 317,
+    STRUCT = 318,
+    ENDSTRUCT = 319,
+    TYPEDEF = 320
   };
 #endif
 

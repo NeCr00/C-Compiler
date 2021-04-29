@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "parser.tab.h" // Get tokens from bison
 #include <string.h>
+
 %}
 
 CHARACTER ["][a-zA-Z0-9_]["]
@@ -28,6 +29,7 @@ NEWLINE		\n
 WHITESPACE	[ \t\v\n\f]
 
 %option noyywrap
+%option yylineno
 
 %%
 
@@ -36,7 +38,7 @@ WHITESPACE	[ \t\v\n\f]
 [%].*			    { /*Ignore comments*/}
 
 
-"PROGRAM"           {return PROGRAM;}
+"PROGRAM[ ]*\n"     {return PROGRAM;}
 "PRINT"             {return PRINT;}
 "FLOAT"             {return FLOAT;}
 "IF" 			    {return IF;}
@@ -54,16 +56,20 @@ WHITESPACE	[ \t\v\n\f]
 "ENDMAIN"           {return ENDMAIN;}
 "WHILE"             {return WHILE;}
 "ENDWHILE"          {return ENDWHILE;}
-"FOR"               { return FOR;}
+"FOR"               {return FOR;}
 "TO"                {return TO;}
 "ENDFOR"            {return ENDFOR;}
 "AND"               {return AND;}
 "OR"                {return OR;}
 "SWITCH"            {return SWITCH;}
 "CASE"              {return CASE;}
-"DEFAULT"           {return DEFAUT;}
-"BREAK"             {BREAK;}
-
+"DEFAULT"           {return DEFAULT;}
+"BREAK"             {return BREAK;}
+"STEP"              {return STEP;}
+"ENDSWITCH"         {return ENDSWITCH;}
+"STRUCT"            {return STRUCT;}
+"ENDSTRUCT"         {return ENDSTRUCT;}
+"TYPEDEF"           {return TYPEDEF;}
 
 
 ""
@@ -91,9 +97,9 @@ WHITESPACE	[ \t\v\n\f]
 ">="			    {return GE_OP; }
 "=="			    {return EQ_OP; }
 "!="			    {return NE_OP; }
-
+\n                  {  }
 {CHARACTER}         {return CHARACTER;}
-{NEWLINE}           {return NEWLINE;}
+
 {IDENTIFIER}        {return IDENTIFIER;}
 {DECINTEGER}        {return DECINTEGER;}
 {POINTFLOAT}        {return POINTFLOAT;}
