@@ -14,31 +14,60 @@
 
 %}
 
-%token PROGRAM IDENTIFIER IF FOR FUNCTION ELSEIF ELSE NEWLINE THEN ENDIF  CHAR INTEGER VARS ENDFUNCTION
+%code requires {
+
+#include "helper.h"
+struct Array variables;
+struct Array functions;
+}
+
+%union
+{
+    struct Variable item ;
+	
+}
+
+%token PROGRAM  IF FOR FUNCTION ELSEIF ELSE NEWLINE THEN ENDIF  CHAR INTEGER VARS ENDFUNCTION
 %token RETURN STARTMAIN ENDMAIN WHILE ENDWHILE  TO ENDFOR AND OR SWITCH CASE DEFAULT PRINT BREAK COL
 %token COMMA COLON EQUAL LPAR RPAR LSBRA RSBRA LBRA RBRA MINUS PLUS PERCENT  LESS_THAN_OP GREATER_THAN_OP
-%token  OR_SIGN  STAR SLASH   LE_OP GE_OP EQ_OP NE_OP APOSTROPHE QUOTATION CHARACTER
-%token DECINTEGER POINTFLOAT FLOAT INTPART  SHORTSTRING STEP ENDSWITCH STRUCT ENDSTRUCT TYPEDEF
+%token  OR_SIGN  STAR SLASH   LE_OP GE_OP EQ_OP NE_OP APOSTROPHE QUOTATION 
+%token   FLOAT INTPART   STEP ENDSWITCH STRUCT ENDSTRUCT TYPEDEF
 
 %left  PLUS MINUS
 %left  STAR SLASH 
 
+%token<item> CHARACTER
+%token<item> DECINTEGER
+%token<item> POINTFLOAT
+%token<item> IDENTIFIER
+%token<item> SHORTSTRING
+
+%type<item> identifier
+%type<item> integer
+%type<item> floatnum
+%type<item> character
+%type<item> literal
+%type<item> string
+%type<item> atom
+%type<item> expression
+%type<item> expression_list
+%type<item> print_input
 %%
 
-program:    
-           struct_stmt main_section
+ program:    
+             PROGRAM IDENTIFIER struct_stmt_list  function  main_section
             {printf("Success! You are awesome. \n");};
 
 
 main_section:
-      STARTMAIN VARS declare_variables statement_list ENDMAIN;
+      STARTMAIN VARS  assignment_stmt_list statement_list ENDMAIN;
 
 statement_list:
       statement_list statement
       |statement;
 
 statement:
-      empty_assigment_stmt
+      empty_assignment_stmt
       |print_stmt
       |break_stmt
       |while_stmt
@@ -46,24 +75,18 @@ statement:
       |if_stmt
       |switch_case_stmt
       |return_stmt
-      |create_struct;
+      |create_struct
+      |call_fun;
 
-create_struct:
-      STRUCT identifier identifier
-      | identifier identifier;
+call_fun:
+      identifier LPAR RPAR
+      |identifier expression_list;
 
-struct_stmt:
+function:
+      
+      |FUNCTION identifier LPAR assignment_stmt_list RPAR VARS statement_list ENDFUNCTION;
 
-      |struct
-      |typedef_struct;
-
-struct: 
-      STRUCT identifier VARS assigment_stmt ENDSTRUCT;
-
-typedef_struct: 
-      TYPEDEF STRUCT identifier VARS assigment_stmt ENDSTRUCT;
-
-
+//============================================Other statements========================================
 return_stmt:
       RETURN
       |RETURN target_return;
@@ -74,6 +97,29 @@ target_return:
 
 break_stmt:
 	BREAK;
+
+//======================================Struct=======================================================
+create_struct:
+      STRUCT identifier identifier
+      | identifier identifier;
+
+struct_stmt_list:
+      struct_stmt
+      |struct_stmt_list struct_stmt;
+
+struct_stmt:
+
+      |struct
+      |typedef_struct;
+
+struct: 
+      STRUCT identifier VARS assignment_stmt_list ENDSTRUCT;
+
+typedef_struct: 
+      TYPEDEF STRUCT identifier VARS assignment_stmt_list ENDSTRUCT;
+
+//============================================ Switch Case =====================================================
+
 
 switch_case_stmt:
       switch case_list default ENDSWITCH
@@ -91,7 +137,7 @@ case:
 
 default:
       DEFAULT statement_list;
-
+//=========================================== If =======================================================
 if_stmt:
       if ENDIF
       |if else ENDIF
@@ -110,7 +156,7 @@ elseif:
 
 else:
       ELSE statement_list;
-
+//=============================== While For ===========================================================
 while_stmt:
       WHILE LPAR expression RPAR statement_list ENDWHILE;
      
@@ -122,14 +168,24 @@ target_for:
       |floatnum;
 //=================================Print===================================================
 print_stmt:
-      PRINT LPAR string RPAR
-      |PRINT LPAR string LSBRA print_input RSBRA RPAR;
+      PRINT LPAR  RPAR
+      |PRINT LPAR string RPAR
+      |PRINT LPAR string LSBRA print_input RSBRA RPAR
+      {print($3.string,$5, &variables);}
+      ;
+
 
 print_input:
       identifier
+      {$$ = $1;}
       |integer
+      {$$ = $1;}
       |floatnum
-      |character;
+      {$$ = $1;}
+      |character
+      {$$ = $1;}
+      |string
+      {$$ = $1;};
 
 //=====================================Expressions=========================================
 expression_list:
@@ -147,42 +203,48 @@ expression:
       |expression comparison_op expression
       |expression logical_op expression;
 
-
 atom:
       literal
+      {$$ = $1;}
       |identifier
-      |string;
-//===========================================================================================
+      {$$ = $1;}
+      |string
+      {$$ = $1;};
+
 
 //========================= Assigment====================================================== 
 
-declare_variables:
- // empty declare
- |assigment_stmt
- |declare_variables assigment_stmt;     
 
-empty_assigment_stmt:
-      target EQUAL expression_list;
+assignment_stmt_list:
+      assignment_stmt
+      | assignment_stmt_list assignment_stmt;
+      
+assignment_stmt:
+      type target
+      |assignment_stmt EQUAL expression_list
+      |assignment_stmt COMMA target
+      |assignment_stmt COMMA target EQUAL expression_list;
 
-assigment_stmt:
-     type taget_list;
+
+
+empty_assignment_stmt:
+      target
+      |empty_assignment_stmt EQUAL expression_list
+      |empty_assignment_stmt COMMA target 
+      |empty_assignment_stmt COMMA target EQUAL expression_list;
+     
 
 type:
     INTEGER
     |CHAR
     |FLOAT;
 
-taget_list:
-      target
-      |taget_list EQUAL expression_list
-      |taget_list COMMA EQUAL expression_list
-      |taget_list COMMA target;
-
 target:
        IDENTIFIER;
-//==========================================================================================
+       | IDENTIFIER  LSBRA integer RSBRA
 
 
+//================================================ etc ========================================
 
 comparison_op: 
         EQ_OP
@@ -197,31 +259,45 @@ logical_op:
         |OR;
 
 string:
-      SHORTSTRING;
+      SHORTSTRING
+      {$$ = $1; };
 
 literal:
         integer
+        {$$ = $1; }
         | floatnum
-        | character;
+        {$$ = $1; }
+        | character
+        {$$ = $1; }
+        |MINUS integer
+        {$$ = $2; }
+        |MINUS floatnum
+        {$$ = $2; };
 
 character:
-         CHARACTER ;
+         CHARACTER
+         {$$ = $1; };
 
 floatnum: 
-        POINTFLOAT;
+        POINTFLOAT
+        {$$ = $1; };
 
 integer:
-          DECINTEGER;
+          DECINTEGER
+          {$$ = $1; };
 
 identifier:
-            IDENTIFIER;
+            IDENTIFIER
+            {$$ = $1; };
 
 %%
 
 int main(int argc, char** argv) {
 
+   initArray(&variables, 5);  // initially 5 elements   
+
    extern int yydebug;
-   yydebug = 1;
+   //yydebug = 1;
 
   // Open a file 
   FILE *myfile = fopen(argv[1], "r");

@@ -34,11 +34,20 @@
 # define YY_YY_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 17 "parser.y" /* yacc.c:1909  */
+
+
+#include "helper.h"
+struct Array variables;
+struct Array functions;
+
+#line 51 "parser.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -46,74 +55,85 @@ extern int yydebug;
   enum yytokentype
   {
     PROGRAM = 258,
-    IDENTIFIER = 259,
-    IF = 260,
-    FOR = 261,
-    FUNCTION = 262,
-    ELSEIF = 263,
-    ELSE = 264,
-    NEWLINE = 265,
-    THEN = 266,
-    ENDIF = 267,
-    CHAR = 268,
-    INTEGER = 269,
-    VARS = 270,
-    ENDFUNCTION = 271,
-    RETURN = 272,
-    STARTMAIN = 273,
-    ENDMAIN = 274,
-    WHILE = 275,
-    ENDWHILE = 276,
-    TO = 277,
-    ENDFOR = 278,
-    AND = 279,
-    OR = 280,
-    SWITCH = 281,
-    CASE = 282,
-    DEFAULT = 283,
-    PRINT = 284,
-    BREAK = 285,
-    COL = 286,
-    COMMA = 287,
-    COLON = 288,
-    EQUAL = 289,
-    LPAR = 290,
-    RPAR = 291,
-    LSBRA = 292,
-    RSBRA = 293,
-    LBRA = 294,
-    RBRA = 295,
-    MINUS = 296,
-    PLUS = 297,
-    PERCENT = 298,
-    LESS_THAN_OP = 299,
-    GREATER_THAN_OP = 300,
-    OR_SIGN = 301,
-    STAR = 302,
-    SLASH = 303,
-    LE_OP = 304,
-    GE_OP = 305,
-    EQ_OP = 306,
-    NE_OP = 307,
-    APOSTROPHE = 308,
-    QUOTATION = 309,
-    CHARACTER = 310,
-    DECINTEGER = 311,
-    POINTFLOAT = 312,
-    FLOAT = 313,
-    INTPART = 314,
-    SHORTSTRING = 315,
-    STEP = 316,
-    ENDSWITCH = 317,
-    STRUCT = 318,
-    ENDSTRUCT = 319,
-    TYPEDEF = 320
+    IF = 259,
+    FOR = 260,
+    FUNCTION = 261,
+    ELSEIF = 262,
+    ELSE = 263,
+    NEWLINE = 264,
+    THEN = 265,
+    ENDIF = 266,
+    CHAR = 267,
+    INTEGER = 268,
+    VARS = 269,
+    ENDFUNCTION = 270,
+    RETURN = 271,
+    STARTMAIN = 272,
+    ENDMAIN = 273,
+    WHILE = 274,
+    ENDWHILE = 275,
+    TO = 276,
+    ENDFOR = 277,
+    AND = 278,
+    OR = 279,
+    SWITCH = 280,
+    CASE = 281,
+    DEFAULT = 282,
+    PRINT = 283,
+    BREAK = 284,
+    COL = 285,
+    COMMA = 286,
+    COLON = 287,
+    EQUAL = 288,
+    LPAR = 289,
+    RPAR = 290,
+    LSBRA = 291,
+    RSBRA = 292,
+    LBRA = 293,
+    RBRA = 294,
+    MINUS = 295,
+    PLUS = 296,
+    PERCENT = 297,
+    LESS_THAN_OP = 298,
+    GREATER_THAN_OP = 299,
+    OR_SIGN = 300,
+    STAR = 301,
+    SLASH = 302,
+    LE_OP = 303,
+    GE_OP = 304,
+    EQ_OP = 305,
+    NE_OP = 306,
+    APOSTROPHE = 307,
+    QUOTATION = 308,
+    FLOAT = 309,
+    INTPART = 310,
+    STEP = 311,
+    ENDSWITCH = 312,
+    STRUCT = 313,
+    ENDSTRUCT = 314,
+    TYPEDEF = 315,
+    CHARACTER = 316,
+    DECINTEGER = 317,
+    POINTFLOAT = 318,
+    IDENTIFIER = 319,
+    SHORTSTRING = 320
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+
+union YYSTYPE
+{
+#line 25 "parser.y" /* yacc.c:1909  */
+
+    struct Variable item ;
+	
+
+#line 134 "parser.tab.h" /* yacc.c:1909  */
+};
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif

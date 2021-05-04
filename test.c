@@ -1,7 +1,11 @@
+
+PROGRAM x
+
 STARTMAIN
+
 VARS
-x=1f
-y=2
-k=2
+INTEGER X=1,y=3,d=3
+FLOAT x=2
+PRINT("aaaa"["1"])
 
 ENDMAIN

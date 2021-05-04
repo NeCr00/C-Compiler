@@ -6,7 +6,7 @@
 
 %}
 
-CHARACTER ["][a-zA-Z0-9_]["]
+
 IDENTIFIER 	[a-zA-Z_][a-zA-Z0-9_]*
 
 
@@ -38,7 +38,7 @@ WHITESPACE	[ \t\v\n\f]
 [%].*			    { /*Ignore comments*/}
 
 
-"PROGRAM[ ]*\n"     {return PROGRAM;}
+"PROGRAM"           {return PROGRAM;}
 "PRINT"             {return PRINT;}
 "FLOAT"             {return FLOAT;}
 "IF" 			    {return IF;}
@@ -98,10 +98,44 @@ WHITESPACE	[ \t\v\n\f]
 "=="			    {return EQ_OP; }
 "!="			    {return NE_OP; }
 \n                  {  }
-{CHARACTER}         {return CHARACTER;}
 
-{IDENTIFIER}        {return IDENTIFIER;}
-{DECINTEGER}        {return DECINTEGER;}
-{POINTFLOAT}        {return POINTFLOAT;}
-{SHORTSTRING}       {return SHORTSTRING;}
+
+
+
+{IDENTIFIER}		{	
+				strcpy(yylval.item.name, yytext);
+				yylval.item.type = IDENT;
+				yylval.item.data_type = LITERAL;
+				return IDENTIFIER;
+			}
+
+{DECINTEGER}		{	
+				yylval.item.ival = atoi(yytext);
+				yylval.item.type = INT;
+				yylval.item.data_type = LITERAL;
+				return DECINTEGER;
+			}
+            
+{POINTFLOAT}		{	yylval.item.fval = atof(yytext);
+				yylval.item.type = FL;
+				yylval.item.data_type = LITERAL;
+				
+				return POINTFLOAT;
+			}
+
+{SHORTSTRING}	{ if(strlen(yytext) > 3){
+
+                strcpy(yylval.item.string, yytext);
+				yylval.item.type = STRING;
+				yylval.item.data_type = LITERAL;
+				return SHORTSTRING;}
+
+                else{
+                    strcpy(yylval.item.string, yytext);
+				    yylval.item.type = CHARACT;
+				    yylval.item.data_type = LITERAL;
+                    return CHARACTER;
+                }
+                
+            }
 %%
