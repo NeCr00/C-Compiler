@@ -19,6 +19,7 @@
 #include "helper.h"
 struct Array variables;
 struct Array functions;
+struct Array structures;
 }
 
 %union
@@ -31,7 +32,7 @@ struct Array functions;
 %token RETURN STARTMAIN ENDMAIN WHILE ENDWHILE  TO ENDFOR AND OR SWITCH CASE DEFAULT PRINT BREAK COL
 %token COMMA COLON EQUAL LPAR RPAR LSBRA RSBRA LBRA RBRA MINUS PLUS PERCENT  LESS_THAN_OP GREATER_THAN_OP
 %token  OR_SIGN  STAR SLASH   LE_OP GE_OP EQ_OP NE_OP APOSTROPHE QUOTATION 
-%token   FLOAT INTPART   STEP ENDSWITCH STRUCT ENDSTRUCT TYPEDEF
+%token   FLOAT INTPART   STEP ENDSWITCH STRUCT ENDSTRUCT TYPEDEF EXP
 
 %left  PLUS MINUS
 %left  STAR SLASH 
@@ -49,9 +50,9 @@ struct Array functions;
 %type<item> literal
 %type<item> string
 %type<item> atom
-%type<item> expression
-%type<item> expression_list
+
 %type<item> print_input
+
 %%
 
  program:    
@@ -67,24 +68,33 @@ statement_list:
       |statement;
 
 statement:
-      empty_assignment_stmt
+      empty_assignment_stmt_list
       |print_stmt
       |break_stmt
       |while_stmt
       |for_stmt
       |if_stmt
       |switch_case_stmt
-      |return_stmt
       |create_struct
       |call_fun;
 
 call_fun:
       identifier LPAR RPAR
-      |identifier expression_list;
+      {checkDefinition($1,&functions);}
+      |identifier expression_list
+      {checkDefinition ($1,&functions);};
 
 function:
       
-      |FUNCTION identifier LPAR assignment_stmt_list RPAR VARS statement_list ENDFUNCTION;
+      |FUNCTION identifier LPAR fun_target_list RPAR VARS assignment_stmt_list  statement_list  return_stmt ENDFUNCTION  
+      {$2.type=FUN; insertArray(&functions,$2);};
+
+fun_target_list:
+      fun_target
+      |fun_target_list COMMA fun_target;
+
+fun_target:
+      type identifier;
 
 //============================================Other statements========================================
 return_stmt:
@@ -101,6 +111,7 @@ break_stmt:
 //======================================Struct=======================================================
 create_struct:
       STRUCT identifier identifier
+      {checkDefinition($2, &structures);}
       | identifier identifier;
 
 struct_stmt_list:
@@ -113,10 +124,13 @@ struct_stmt:
       |typedef_struct;
 
 struct: 
-      STRUCT identifier VARS assignment_stmt_list ENDSTRUCT;
+      STRUCT identifier VARS assignment_stmt_list ENDSTRUCT
+      {insertArray(&structures, $2);};
 
 typedef_struct: 
-      TYPEDEF STRUCT identifier VARS assignment_stmt_list ENDSTRUCT;
+      TYPEDEF STRUCT identifier VARS assignment_stmt_list ENDSTRUCT
+      {insertArray(&structures, $3);};
+;
 
 //============================================ Switch Case =====================================================
 
@@ -136,7 +150,7 @@ case:
       CASE LPAR expression RPAR COLON statement_list;
 
 default:
-      DEFAULT statement_list;
+      DEFAULT COLON statement_list;
 //=========================================== If =======================================================
 if_stmt:
       if ENDIF
@@ -168,9 +182,10 @@ target_for:
       |floatnum;
 //=================================Print===================================================
 print_stmt:
-      PRINT LPAR  RPAR
-      |PRINT LPAR string RPAR
-      |PRINT LPAR string LSBRA print_input RSBRA RPAR
+      PRINT LPAR  RPAR COL
+      |PRINT LPAR string RPAR COL
+       { struct Variable empty; empty.type=FUN;  print($3.string,empty, &variables);}
+      |PRINT LPAR string LSBRA print_input RSBRA RPAR COL
       {print($3.string,$5, &variables);}
       ;
 
@@ -200,24 +215,26 @@ expression:
       |expression MINUS expression
       |expression STAR expression
       |expression SLASH expression;
+      |expression EXP expression;
       |expression comparison_op expression
-      |expression logical_op expression;
+      |expression logical_op expression
+      |LPAR expression RPAR;
 
 atom:
       literal
-      {$$ = $1;}
+      
       |identifier
-      {$$ = $1;}
-      |string
-      {$$ = $1;};
+      
+      |string;
+      
 
 
 //========================= Assigment====================================================== 
 
 
 assignment_stmt_list:
-      assignment_stmt
-      | assignment_stmt_list assignment_stmt;
+      assignment_stmt COL
+      | assignment_stmt_list assignment_stmt COL;
       
 assignment_stmt:
       type target
@@ -226,12 +243,13 @@ assignment_stmt:
       |assignment_stmt COMMA target EQUAL expression_list;
 
 
+empty_assignment_stmt_list:
+      empty_assignment_stmt COL;
+      
 
 empty_assignment_stmt:
-      target
-      |empty_assignment_stmt EQUAL expression_list
-      |empty_assignment_stmt COMMA target 
-      |empty_assignment_stmt COMMA target EQUAL expression_list;
+      target 
+      |empty_assignment_stmt EQUAL expression_list;
      
 
 type:
@@ -294,10 +312,11 @@ identifier:
 
 int main(int argc, char** argv) {
 
-   initArray(&variables, 5);  // initially 5 elements   
-
+   initArray(&variables, 5);
+   initArray(&functions , 5);  // initially 5 elements   
+   initArray(&structures, 5)   ;
    extern int yydebug;
-   //yydebug = 1;
+   yydebug = 1;
 
   // Open a file 
   FILE *myfile = fopen(argv[1], "r");

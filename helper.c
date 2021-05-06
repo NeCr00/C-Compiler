@@ -31,35 +31,52 @@ void freeArray(struct Array *a)
 	a->used = a->size = 0;
 }
 
-
-void print( char  *str , struct Variable item, struct Array *a)
-{	
+void print(char *str, struct Variable item, struct Array *a)
+{
 	//afairei ton prwto xarakthra tou string , dhladh to ' " '
 	memmove(&str[0], &str[1], strlen(str));
 	//afairei ton teleutaio xarakthra tou string, dhladh to ' " '
 	str[strlen(str) - 1] = 0;
 
-	printf("%s",str);
+	printf("%s", str);
 
 	// if (item.type == IDENT)
 	// 	item = find_value(a, item, 1);
 
 	//an i metavliti einai typoy int thn ektypwnei me thn swsth parametro %d
 	if (item.type == INT)
-		printf("%d\n", item.ival);
+		printf("%d2\n", item.ival);
 
 	//an i metavliti einai typoy float thn ektypwnei me thn swsth parametro %f
 	else if (item.type == FL)
-		printf("%f\n", item.fval);
+		printf("%f3\n", item.fval);
 
 	////an i metavliti einai typoy string thn ektypwnei me thn swsth parametro %s kai afairei tous xarakthres ""
 	else
 	{
-		if (item.string[0] == '"' || item.string[0] == 39) //39 equals to ' in ascii. This if removes ' "
+		if (item.string[0] == '"' || item.string[0] == 39 && item.string) //39 equals to ' in ascii. This if removes ' "
 		{
 			memmove(&item.string[0], &item.string[1], strlen(item.string));
 			item.string[strlen(item.string) - 1] = 0;
 		}
 		printf("%s\n", item.string);
+	}
+}
+
+void checkDefinition(struct Variable item, struct Array *a)
+{
+	int i = 0;
+	int check = 0;
+	while (i < a->used)
+	{
+
+		if (strcmp(a->array[i].name, item.name) == 0)
+			check = 1;
+		i++;
+	}
+	if (!check)
+	{
+		fprintf(stderr, "Line: %d --> Error:  %s has not been defined\n", yylineno, item.name);
+		exit(1);
 	}
 }

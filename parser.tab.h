@@ -34,7 +34,7 @@
 # define YY_YY_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 0
+# define YYDEBUG 1
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -46,8 +46,9 @@ extern int yydebug;
 #include "helper.h"
 struct Array variables;
 struct Array functions;
+struct Array structures;
 
-#line 51 "parser.tab.h" /* yacc.c:1909  */
+#line 52 "parser.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -112,11 +113,12 @@ struct Array functions;
     STRUCT = 313,
     ENDSTRUCT = 314,
     TYPEDEF = 315,
-    CHARACTER = 316,
-    DECINTEGER = 317,
-    POINTFLOAT = 318,
-    IDENTIFIER = 319,
-    SHORTSTRING = 320
+    EXP = 316,
+    CHARACTER = 317,
+    DECINTEGER = 318,
+    POINTFLOAT = 319,
+    IDENTIFIER = 320,
+    SHORTSTRING = 321
   };
 #endif
 
@@ -125,12 +127,12 @@ struct Array functions;
 
 union YYSTYPE
 {
-#line 25 "parser.y" /* yacc.c:1909  */
+#line 26 "parser.y" /* yacc.c:1909  */
 
     struct Variable item ;
 	
 
-#line 134 "parser.tab.h" /* yacc.c:1909  */
+#line 136 "parser.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -26,3 +26,4 @@ void freeArray(struct Array *a) ;
 
 
 void print ( char *str ,struct Variable item, struct Array *a);
+void checkDefinition (struct Variable item, struct Array *a );

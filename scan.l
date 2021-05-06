@@ -22,20 +22,21 @@ EXPONENTFLOAT	({INTPART}|{POINTFLOAT}){EXPONENT}
 
 STRINGPREFIX	("r"|"u"|"ur"|"R"|"U"|"UR"|"Ur"|"uR")
 SHORTSTRINGITEM	([^\n\'\"\\])|([\\].)
-LONGSTRINGITEM	([^\\])|([\\].)
 SHORTSTRING	{STRINGPREFIX}?([']{SHORTSTRINGITEM}*['])|(["]{SHORTSTRINGITEM}*["])
-LONGSTRING	{STRINGPREFIX}?(([']{3}{LONGSTRINGITEM}*[']{3})|(["]{3}{LONGSTRINGITEM}*["]{3}))
+
 NEWLINE		\n
 WHITESPACE	[ \t\v\n\f]
 
 %option noyywrap
 %option yylineno
+%x C_COMMENT
 
 %%
 
-^[ ]*\n	       		{/* Ignore blank lines. */ ;} 			
-^[\t]*\n       		{/* Ignore blank lines. */ ;}
-[%].*			    { /*Ignore comments*/}
+ 
+^[ ]*\n	       			 {/* Ignore blank lines. */ ;} 			
+^[\t]*\n       			 {/* Ignore blank lines. */ ;}
+[%].*			    	 { /*Ignore comments*/}
 
 
 "PROGRAM"           {return PROGRAM;}
@@ -97,9 +98,12 @@ WHITESPACE	[ \t\v\n\f]
 ">="			    {return GE_OP; }
 "=="			    {return EQ_OP; }
 "!="			    {return NE_OP; }
+"^"					{return EXP;}
 \n                  {  }
 
-
+"/*"            { BEGIN(C_COMMENT); }
+<C_COMMENT>"*/" { BEGIN(INITIAL); }
+<C_COMMENT>.    { }
 
 
 {IDENTIFIER}		{	
