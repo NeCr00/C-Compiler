@@ -45,11 +45,11 @@ void print(char *str, struct Variable item, struct Array *a)
 
 	//an i metavliti einai typoy int thn ektypwnei me thn swsth parametro %d
 	if (item.type == INT)
-		printf("%d2\n", item.ival);
+		printf("%d\n", item.ival);
 
 	//an i metavliti einai typoy float thn ektypwnei me thn swsth parametro %f
 	else if (item.type == FL)
-		printf("%f3\n", item.fval);
+		printf("%f\n", item.fval);
 
 	////an i metavliti einai typoy string thn ektypwnei me thn swsth parametro %s kai afairei tous xarakthres ""
 	else
