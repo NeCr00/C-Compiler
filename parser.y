@@ -85,7 +85,7 @@ call_fun:
       {checkDefinition ($1,&functions);};
 
 function:
-      
+      //empty
       |FUNCTION identifier LPAR fun_target_list RPAR VARS assignment_stmt_list  statement_list  return_stmt ENDFUNCTION  
       {$2.type=FUN; insertArray(&functions,$2);};
 
@@ -98,7 +98,7 @@ fun_target:
 
 //============================================Other statements========================================
 return_stmt:
-      RETURN COL
+      RETURN
       |RETURN target_return COL;
 
 target_return:
@@ -119,7 +119,7 @@ struct_stmt_list:
       |struct_stmt_list struct_stmt;
 
 struct_stmt:
-
+      //empty
       |struct
       |typedef_struct;
 
@@ -316,7 +316,7 @@ int main(int argc, char** argv) {
    initArray(&functions , 5);  // initially 5 elements   
    initArray(&structures, 5)   ;
    extern int yydebug;
-   //yydebug = 1;
+   yydebug = 1;
 
   // Open a file 
   FILE *myfile = fopen(argv[1], "r");
