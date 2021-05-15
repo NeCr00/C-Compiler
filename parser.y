@@ -51,17 +51,19 @@ struct Array structures;
 %type<item> string
 %type<item> atom
 
+
 %type<item> print_input
 
 %%
 
  program:    
-             PROGRAM IDENTIFIER struct_stmt_list  function  main_section
+             PROGRAM IDENTIFIER struct_stmt_list  function_list  main_section
             {printf("Success! You are awesome. \n");};
 
 
 main_section:
-      STARTMAIN VARS  assignment_stmt_list statement_list ENDMAIN;
+      STARTMAIN VARS  assignment_stmt_list statement_list ENDMAIN
+      |STARTMAIN  statement_list ENDMAIN;
 
 statement_list:
       statement_list statement
@@ -82,11 +84,20 @@ call_fun:
       identifier LPAR RPAR
       {checkDefinition($1,&functions);}
       |identifier expression_list
-      {checkDefinition ($1,&functions);};
+      {checkDefinition ($1,&functions);}
+      |empty_assignment_stmt expression_list
+      
+      ;
+
+function_list:
+      function
+      |function_list function;
 
 function:
       //empty
       |FUNCTION identifier LPAR fun_target_list RPAR VARS assignment_stmt_list  statement_list  return_stmt ENDFUNCTION  
+      {$2.type=FUN; insertArray(&functions,$2);}
+      |FUNCTION identifier LPAR fun_target_list RPAR   statement_list  return_stmt ENDFUNCTION  
       {$2.type=FUN; insertArray(&functions,$2);};
 
 fun_target_list:
@@ -106,13 +117,14 @@ target_return:
       |identifier;
 
 break_stmt:
-	BREAK;
+	BREAK COL;
 
 //======================================Struct=======================================================
 create_struct:
       STRUCT identifier identifier
       {checkDefinition($2, &structures);}
-      | identifier identifier;
+      | identifier identifier
+      {checkDefinition($1, &structures);};
 
 struct_stmt_list:
       struct_stmt
@@ -218,14 +230,17 @@ expression:
       |expression EXP expression;
       |expression comparison_op expression
       |expression logical_op expression
-      |LPAR expression RPAR;
+      |LPAR expression RPAR
+      |LPAR RPAR
 
 atom:
       literal
       
       |identifier
       
-      |string;
+      |string
+      
+      |identifier LSBRA integer RSBRA;
       
 
 
@@ -248,9 +263,11 @@ empty_assignment_stmt_list:
       
 
 empty_assignment_stmt:
-      target 
-      |empty_assignment_stmt EQUAL expression_list;
-     
+      target
+      
+      |empty_assignment_stmt EQUAL expression_list
+      ;
+
 
 type:
     INTEGER
@@ -258,8 +275,9 @@ type:
     |FLOAT;
 
 target:
-       IDENTIFIER;
-       | IDENTIFIER  LSBRA integer RSBRA
+       IDENTIFIER
+       
+       | IDENTIFIER  LSBRA integer RSBRA;
 
 
 //================================================ etc ========================================
@@ -315,8 +333,9 @@ int main(int argc, char** argv) {
    initArray(&variables, 5);
    initArray(&functions , 5);  // initially 5 elements   
    initArray(&structures, 5)   ;
-   extern int yydebug;
-   yydebug = 1;
+ 
+ extern int yydebug;
+ yydebug =1;
 
   // Open a file 
   FILE *myfile = fopen(argv[1], "r");

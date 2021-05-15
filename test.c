@@ -2,11 +2,11 @@ PROGRAM test
 
 
 STARTMAIN
-
 VARS
-INTEGER x;
+INTEGER x,y=1;
 
-x=1;
+PRINT ("this is a test");
+
 
 ENDMAIN
 
