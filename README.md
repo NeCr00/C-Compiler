@@ -1,10 +1,67 @@
 # C-Compiler
-Mini Project --> making a compiler with flex and bison for C like language
 
-commands to run project -->
+This repository contains a mini project for making a compiler with flex and bison for a C-like language. The project's goal is to learn about lexical analysis and parsing of source code in order to create a compiler.
 
-1. compile scan.l with --> flex scan.l
-2. compile parser.y without debug mode --> bison -d parser.y            (warning: in main on parser.y you should comment the command  yydebug = 1;
-OR compile parser.y with debug mode --> bison -d parser.y --debug      (warning: in main uncomment the command  yydebug = 1;
-3. extract compiler --> gcc parser.tab.c lex.yy.c helper.c -o compiler 
-4. compile your file with  the new compiler --> ./compiler <name_of_file>   example: ./compiler test.c
+## Features
+
+The C-Compiler project has the following features:
+
+-   Lexer to analyze and tokenize the source code
+-   Parser to analyze the grammar and syntax of the source code
+-   Ability to compile the source code and console errors
+
+## Technologies Used
+
+The C-Compiler project is developed using the following technologies:
+
+-   Flex for lexical analysis
+-   Bison for parsing
+-   C for coding
+
+## Usage
+
+To use the C-Compiler project, follow these steps:
+
+1.  Clone the repository to your local machine.
+    
+2.  Navigate to the root directory of the project in a terminal window.
+    
+3.  Compile the `scan.l` file using the following command:
+    
+  ```bash
+  flex scan.l
+  ```
+    
+4.  Compile the `parser.y` file with debug mode disabled using the following command:
+    
+  ```bash
+  bison -d parser.y
+  ```
+
+Note: If you want to compile with debug mode enabled, use the following command instead:
+
+  ```bash
+  bison -d parser.y --debug
+  ```
+    
+5.  Compile the `compiler` executable file using the following command:
+```bash
+gcc parser.tab.c lex.yy.c helper.c -o compiler
+```
+    
+6. Compile your C-like language file with the new compiler using the following command:
+```bash
+./compiler <name_of_file>
+```
+
+For example:
+
+```bash
+./compiler test.c
+```
+
+
+
+## Credits
+
+This project is developed by [Ioannis Christodoulakos]. We would like to thank our university for providing us with the opportunity to work on this project and learn about lexical analysis and parsing.
